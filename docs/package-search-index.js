@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"net.flioris.jva"},{"l":"net.flioris.jva.event"},{"l":"net.flioris.jva.event.chat"},{"l":"net.flioris.jva.models"},{"l":"net.flioris.jva.models.conversation"},{"l":"net.flioris.jva.util"}];updateSearchResults();
