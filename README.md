@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/Flioris/JVA?label=Release)](https://github.com/Flioris/JVA/releases)
 [![discord-shield](https://discord.com/api/guilds/1045660297236582462/widget.png)](https://discord.gg/AZSZ8nhtra)
-[![docs-shield](https://img.shields.io/badge/Wiki-Docs-blue.svg)](index.html)
+[![docs-shield](https://img.shields.io/badge/Wiki-Docs-blue.svg)](https://flioris.github.io/JVA/)
 
 # JVA (Java VK API)
 
@@ -72,4 +72,4 @@ public class MainListener extends EventListener {
 }
 ```
 
-More details in [Javadoc](index.html).
+More details in [Javadoc](https://flioris.github.io/JVA/).

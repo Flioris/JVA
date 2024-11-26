@@ -19,6 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Provides methods to execute API requests and handles events.
+ */
 public class JVA {
     private EventListener[] botListener;
     private final String ACCESS_TOKEN;
