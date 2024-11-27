@@ -154,12 +154,12 @@ public class JVA {
 
             if (text.startsWith("/")) {
                 String[] command = text.substring(1, text.length()).split(" ");
-                CommandEvent event = new CommandEvent(message, command[0], command);
+                CommandEvent event = new CommandEvent(message, command[0], command, update);
                 for (EventListener listener : botListener) {
                     listener.onCommand(event);
                 }
             } else {
-                MessageEvent event = new MessageEvent(message);
+                MessageEvent event = new MessageEvent(message, update);
                 for (EventListener listener : botListener) {
                     listener.onMessage(event);
                 }
