@@ -1,4 +1,4 @@
-package net.flioris.jva.models.conversation;
+package net.flioris.jva.models.conversation.settings;
 
 import net.flioris.jva.models.Message;
 import lombok.AllArgsConstructor;
@@ -32,6 +32,11 @@ public class ChatSettings {
     private final String state;
     private final List<Integer> activeIds;
     private final boolean isGroupChannel;
+    @Nullable
+    private final Photo photo;
+    @Nullable
+    private final Permissions permissions;
+    private final AccessControlList accessControlList;
 
     public static ChatSettings fromJSON(JSONObject rawChatSettings) {
         JSONArray activeArray = rawChatSettings.getJSONArray("active_ids");
@@ -56,6 +61,10 @@ public class ChatSettings {
                 adminIds, rawChatSettings.getInt("members_count"), rawChatSettings.getString("title"),
                 rawChatSettings.has("pinned_message") ? Message.fromJSON(rawChatSettings.getJSONObject("pinned_message")) : null,
                 rawChatSettings.getString("state"),
-                activeIds, rawChatSettings.getBoolean("is_group_channel"));
+                activeIds,
+                rawChatSettings.getBoolean("is_group_channel"),
+                rawChatSettings.has("photo") ? Photo.fromJSON(rawChatSettings.getJSONObject("photo")) : null,
+                rawChatSettings.has("permissions") ? Permissions.fromJSON(rawChatSettings.getJSONObject("permissions")) : null,
+                AccessControlList.fromJSON(rawChatSettings.getJSONObject("acl")));
     }
 }

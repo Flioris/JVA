@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Provides methods to execute API requests and handles events.
  */
 public class JVA {
-    private EventListener[] botListener;
+    private EventListener[] botListener = {};
     private final String ACCESS_TOKEN;
     private final String GROUP_ID;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -185,7 +185,8 @@ public class JVA {
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
                 if (response.isSuccessful()) {
-                    return new JSONObject(response.body().string()).getJSONObject("response").getString("upload_url");
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? json.getJSONObject("response").getString("upload_url") : null;
                 }
                 return null;
             }
@@ -206,7 +207,8 @@ public class JVA {
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
                 if (response.isSuccessful()) {
-                    return new JSONObject(response.body().string()).getJSONObject("response").getString("upload_url");
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? json.getJSONObject("response").getString("upload_url") : null;
                 }
                 return null;
             }
@@ -291,9 +293,9 @@ public class JVA {
 
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
-                JSONObject json = new JSONObject(response.body().string());
-                if (response.isSuccessful() && json.has("response")) {
-                    return json.getJSONArray("response").getJSONObject(0);
+                if (response.isSuccessful()) {
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? json.getJSONArray("response").getJSONObject(0) : null;
                 }
                 return null;
             }
@@ -318,7 +320,8 @@ public class JVA {
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
                 if (response.isSuccessful()) {
-                    return new JSONObject(response.body().string()).getJSONObject("response").getJSONObject("doc");
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? json.getJSONObject("response").getJSONObject("doc") : null;
                 }
                 return null;
             }
@@ -512,7 +515,7 @@ public class JVA {
      * @param  conversationId
      *         The ID of the Conversation you want to receive.
      *
-     * @return The Conversation with this ID.
+     * @return The Conversation with this ID. May return null.
      */
     public RestAction<Conversation> getConversationById(String conversationId) {
         HttpUrl url = getBaseUrlBuilder("messages.getConversationsById")
@@ -523,8 +526,9 @@ public class JVA {
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
                 if (response.isSuccessful()) {
-                    JSONArray array = new JSONObject(response.body().string()).getJSONObject("response").getJSONArray("items");
-                    return array.isEmpty() ? null : Conversation.fromJSON(array.getJSONObject(0));
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? Conversation.fromJSON(json.getJSONObject("response")
+                            .getJSONArray("items").getJSONObject(0)) : null;
                 }
                 return null;
             }
@@ -537,7 +541,7 @@ public class JVA {
      * @param  userId
      *         The ID of the User you want to receive.
      *
-     * @return The User with this ID.
+     * @return The User with this ID. May return null.
      */
     public RestAction<User> getUserById(String userId) {
         HttpUrl url = getBaseUrlBuilder("users.get")
@@ -548,7 +552,8 @@ public class JVA {
         return new RestAction<>(client.newCall(request), response -> {
             try (response) {
                 if (response.isSuccessful()) {
-                    return User.fromJSON(new JSONObject(response.body().string()).getJSONArray("response").getJSONObject(0));
+                    JSONObject json = new JSONObject(response.body().string());
+                    return json.has("response") ? User.fromJSON(json.getJSONArray("response").getJSONObject(0)) : null;
                 }
                 return null;
             }

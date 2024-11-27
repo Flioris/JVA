@@ -2,6 +2,7 @@ package net.flioris.jva.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@ToString
 public class Message {
     private final int date;
     private final int authorId;
@@ -34,6 +36,7 @@ public class Message {
     private final Integer randomId;
     @Nullable
     private final Message replyMessage;
+    private final JSONObject raw;
 
     public static Message fromJSON(JSONObject rawMessage) {
         List<String> attachmentURLs = new ArrayList<>();
@@ -84,6 +87,7 @@ public class Message {
                 rawMessage.getInt("peer_id"), rawMessage.has("important") ? rawMessage.getBoolean("important") : null,
                 forwardedMessages, rawMessage.getInt("id"), rawMessage.getString("text"),
                 rawMessage.has("random_id") ? rawMessage.getInt("random_id") : null,
-                rawMessage.has("reply_message") ? fromJSON(rawMessage.getJSONObject("reply_message")) : null);
+                rawMessage.has("reply_message") ? fromJSON(rawMessage.getJSONObject("reply_message")) : null,
+                rawMessage);
     }
 }

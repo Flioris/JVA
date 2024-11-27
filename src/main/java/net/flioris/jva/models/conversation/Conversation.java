@@ -3,6 +3,7 @@ package net.flioris.jva.models.conversation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import net.flioris.jva.models.conversation.settings.ChatSettings;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -37,6 +38,7 @@ public class Conversation {
     private final Integer lastConversationMessageId;
     @Nullable
     private final Integer version;
+    private final JSONObject raw;
 
     public static Conversation fromJSON(JSONObject rawConversation) {
         return new Conversation(rawConversation.has("peer_flags") ? rawConversation.getInt("peer_flags") : null,
@@ -53,6 +55,7 @@ public class Conversation {
                 rawConversation.has("sort_id") ? SortId.fromJSON(rawConversation.getJSONObject("sort_id")) : null,
                 rawConversation.has("last_message_id") ? rawConversation.getInt("last_message_id") : null,
                 rawConversation.has("last_conversation_message_id") ? rawConversation.getInt("last_conversation_message_id") : null,
-                rawConversation.has("version") ? rawConversation.getInt("version") : null);
+                rawConversation.has("version") ? rawConversation.getInt("version") : null,
+                rawConversation);
     }
 }
