@@ -24,7 +24,7 @@ An open source Java wrapper for working with the VK Long Poll API. Provides the 
     <dependency>
         <groupId>com.github.Flioris</groupId>
         <artifactId>JVA</artifactId>
-        <version>0.1.4-alpha</version>
+        <version>0.1.5-alpha</version>
     </dependency>
 </dependencies>
 ```
@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Flioris:JVA:0.1.4-alpha")
+    implementation("com.github.Flioris:JVA:0.1.5-alpha")
 }
 ```
 
