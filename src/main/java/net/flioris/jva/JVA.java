@@ -341,12 +341,8 @@ public class JVA {
     public void send(int id, String message, File photo) {
         getPhotosUploadServer(id).queue(uploadUrl ->
                 uploadPhoto(uploadUrl, photo).queue(uploadResponse ->
-                        savePhoto(uploadResponse).queue(savePhotoResponse -> {
-                            send(id, message, savePhotoResponse);
-                            photo.delete();
-                            }, throwable -> photo.delete()),
-                        throwable -> photo.delete()),
-                throwable -> photo.delete());
+                        savePhoto(uploadResponse).queue(savePhotoResponse ->
+                            send(id, message, savePhotoResponse))));
     }
 
     /**
@@ -360,12 +356,8 @@ public class JVA {
     public void post(String message, File photo) {
         getDocsUploadServer().queue(uploadUrl ->
                 uploadDocument(uploadUrl, photo).queue(uploadResponse ->
-                        saveDocument(uploadResponse).queue(saveDocResponse -> {
-                            post(message, saveDocResponse);
-                            photo.delete();
-                        }, throwable -> photo.delete()),
-                        throwable -> photo.delete()),
-                throwable -> photo.delete());
+                        saveDocument(uploadResponse).queue(saveDocResponse ->
+                                post(message, saveDocResponse))));
     }
 
     /**
