@@ -1,12 +1,19 @@
 package net.flioris.jva;
 
+import net.flioris.jva.action.document.GetDocumentUploadServerAction;
+import net.flioris.jva.action.document.SaveDocumentAction;
+import net.flioris.jva.action.document.UploadDocumentAction;
+import net.flioris.jva.action.message.GetConversationByIdAction;
+import net.flioris.jva.action.message.SendAction;
+import net.flioris.jva.action.photo.GetPhotoUploadServerAction;
+import net.flioris.jva.action.photo.SavePhotoAction;
+import net.flioris.jva.action.photo.UploadPhotoAction;
+import net.flioris.jva.action.user.GetUserByIdAction;
+import net.flioris.jva.action.wall.PostAction;
 import net.flioris.jva.event.chat.CommandEvent;
 import net.flioris.jva.event.chat.MessageEvent;
 import net.flioris.jva.models.Message;
 import net.flioris.jva.event.EventListener;
-import net.flioris.jva.models.User;
-import net.flioris.jva.models.conversation.Conversation;
-import net.flioris.jva.util.RestAction;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -176,21 +183,11 @@ public class JVA {
      *
      * @return Photos upload server.
      */
-    public RestAction<String> getPhotosUploadServer(int peerId) {
-        HttpUrl url = getBaseUrlBuilder("photos.getMessagesUploadServer")
-                .addQueryParameter("peer_id", String.valueOf(peerId))
-                .build();
-        Request request = new Request.Builder().url(url).build();
+    public GetPhotoUploadServerAction getPhotoUploadServer(int peerId) {
+        okhttp3.HttpUrl.Builder builder = getBaseUrlBuilder("photos.getMessagesUploadServer")
+                .addQueryParameter("peer_id", String.valueOf(peerId));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getJSONObject("response").getString("upload_url") : null;
-                }
-                return null;
-            }
-        });
+        return new GetPhotoUploadServerAction(client, builder);
     }
 
     /**
@@ -198,21 +195,11 @@ public class JVA {
      *
      * @return Documents upload server.
      */
-    public RestAction<String> getDocsUploadServer() {
-        HttpUrl url = getBaseUrlBuilder("docs.getWallUploadServer")
-                .addQueryParameter("group_id", GROUP_ID)
-                .build();
-        Request request = new Request.Builder().url(url).build();
+    public GetDocumentUploadServerAction getDocumentUploadServer() {
+        okhttp3.HttpUrl.Builder builder = getBaseUrlBuilder("docs.getWallUploadServer")
+                .addQueryParameter("group_id", GROUP_ID);
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getJSONObject("response").getString("upload_url") : null;
-                }
-                return null;
-            }
-        });
+        return new GetDocumentUploadServerAction(client, builder);
     }
 
     /**
@@ -225,22 +212,13 @@ public class JVA {
      *
      * @return uploadPhotoResponse.
      */
-    public RestAction<JSONObject> uploadPhoto(String uploadUrl, File photo) {
-        RequestBody requestBody = new MultipartBody.Builder()
+    public UploadPhotoAction uploadPhoto(String uploadUrl, File photo) {
+        okhttp3.MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("photo", photo.getName(),
-                        RequestBody.create(photo, MediaType.parse("image/png")))
-                .build();
-        Request request = new Request.Builder().url(uploadUrl).post(requestBody).build();
+                        RequestBody.create(photo, MediaType.parse("image/png")));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    return new JSONObject(response.body().string());
-                }
-                return null;
-            }
-        });
+        return new UploadPhotoAction(client, builder, uploadUrl);
     }
 
     /**
@@ -253,22 +231,13 @@ public class JVA {
      *
      * @return uploadDocumentResponse.
      */
-    public RestAction<JSONObject> uploadDocument(String uploadUrl, File photo) {
-        RequestBody requestBody = new MultipartBody.Builder()
+    public UploadDocumentAction uploadDocument(String uploadUrl, File photo) {
+        okhttp3.MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", photo.getName(),
-                        RequestBody.create(photo, MediaType.parse("image/png")))
-                .build();
-        Request request = new Request.Builder().url(uploadUrl).post(requestBody).build();
+                        RequestBody.create(photo, MediaType.parse("image/png")));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    return new JSONObject(response.body().string());
-                }
-                return null;
-            }
-        });
+        return new UploadDocumentAction(client, builder, uploadUrl);
     }
 
     /**
@@ -279,27 +248,13 @@ public class JVA {
      *
      * @return savePhotoResponse.
      */
-    public RestAction<JSONObject> savePhoto(JSONObject uploadResponse) {
-        if (uploadResponse == null || !uploadResponse.has("photo")) {
-            return null;
-        }
-
-        HttpUrl url = getBaseUrlBuilder("photos.saveMessagesPhoto")
+    public SavePhotoAction savePhoto(JSONObject uploadResponse) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("photos.saveMessagesPhoto")
                 .addQueryParameter("photo", uploadResponse.getString("photo"))
                 .addQueryParameter("server", String.valueOf(uploadResponse.getInt("server")))
-                .addQueryParameter("hash", uploadResponse.getString("hash"))
-                .build();
-        Request request = new Request.Builder().url(url).build();
+                .addQueryParameter("hash", uploadResponse.getString("hash"));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getJSONArray("response").getJSONObject(0) : null;
-                }
-                return null;
-            }
-        });
+        return new SavePhotoAction(client, builder);
     }
 
     /**
@@ -310,195 +265,40 @@ public class JVA {
      *
      * @return saveDocumentResponse.
      */
-    public RestAction<JSONObject> saveDocument(JSONObject uploadResponse) {
-        HttpUrl url = getBaseUrlBuilder("docs.save")
+    public SaveDocumentAction saveDocument(JSONObject uploadResponse) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("docs.save")
                 .addQueryParameter("file", uploadResponse.getString("file"))
-                .addQueryParameter("group_id", GROUP_ID)
-                .build();
-        Request request = new Request.Builder().url(url).build();
+                .addQueryParameter("group_id", GROUP_ID);
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getJSONObject("response").getJSONObject("doc") : null;
-                }
-                return null;
-            }
-        });
+        return new SaveDocumentAction(client, builder);
     }
 
     /**
-     * Sends a message with text and a photo in a private message to a user or conversation.
+     * Sends a message to the user or conversation.
      *
-     * @param  id
+     * @param  targetId
      *         The ID of the user or conversation to which you want to post a message with text and a photo.
-     * @param  message
-     *         The text that will be attached.
-     * @param  photo
-     *         The photo that will be attached to the message.
+     *
+     * @return The ID of the message that was sent.
      */
-    public void send(int id, String message, File photo) {
-        getPhotosUploadServer(id).queue(uploadUrl ->
-                uploadPhoto(uploadUrl, photo).queue(uploadResponse ->
-                        savePhoto(uploadResponse).queue(savePhotoResponse ->
-                            send(id, message, savePhotoResponse))));
+    public SendAction send(int targetId) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("messages.send")
+                .addQueryParameter(targetId < 200000000 ? "user_id" : "peer_id", String.valueOf(targetId))
+                .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()));
+
+        return new SendAction(client, builder);
     }
 
     /**
-     * Publishes a post with a photo and text on the wall of a bot group.
+     * Publishes a post on the wall of a bot group.
      *
-     * @param  message
-     *         The text that will be attached.
-     * @param  photo
-     *         The photo that will be attached.
+     * @return The ID of the message that was sent.
      */
-    public void post(String message, File photo) {
-        getDocsUploadServer().queue(uploadUrl ->
-                uploadDocument(uploadUrl, photo).queue(uploadResponse ->
-                        saveDocument(uploadResponse).queue(saveDocResponse ->
-                                post(message, saveDocResponse))));
-    }
+    public PostAction post() {
+        HttpUrl.Builder builder = getBaseUrlBuilder("wall.post")
+                .addQueryParameter("owner_id", "-" + GROUP_ID);
 
-    /**
-     *Publishes a post with a document and text on the wall of a bot group (currently used for uploading group photos).
-     *
-     * @param  message
-     *         The text that will be attached.
-     * @param  saveDocResponse
-     *         Just the response of the saveDocument method.
-     */
-    public void post(String message, JSONObject saveDocResponse) {
-        String attachment = "doc" + saveDocResponse.getInt("owner_id") + "_" + saveDocResponse.getInt("id");
-        HttpUrl url = getBaseUrlBuilder("wall.post")
-                .addQueryParameter("owner_id", "-" + GROUP_ID)
-                .addQueryParameter("message", message)
-                .addQueryParameter("attachments", attachment)
-                .build();
-        Request request = new Request.Builder().url(url).build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                LOGGER.error("Error publishing post: {}", e.getMessage(), e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Error publishing post: {}", response.code());
-                }
-                response.close();
-            }
-        });
-    }
-
-    /**
-     * Sends a message in a private message to a user or conversation.
-     *
-     * @param  id
-     *         The ID of the user or conversation to which you want to post to.
-     * @param  message
-     *         The text that will be attached.
-     */
-    public void send(int id, String message) {
-        HttpUrl url = getBaseUrlBuilder("messages.send")
-                .addQueryParameter(id < 200000000 ? "user_id" : "peer_id", String.valueOf(id))
-                .addQueryParameter("message", message)
-                .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()))
-                .build();
-        Request request = new Request.Builder().url(url).build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                LOGGER.error("Error sending message: {}", e.getMessage(), e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Error sending message: {}", response.code());
-                }
-                response.close();
-            }
-        });
-    }
-
-    /**
-     * Sends a message with text and a photo in a private message to a user or conversation.
-     *
-     * @param  id
-     *         The ID of the user or conversation to which you want to post a message with text and an image.
-     * @param  message
-     *         The text that will be attached.
-     * @param  savePhotoResponse
-     *         Just the response of the savePhoto method.
-     */
-    public void send(int id, String message, JSONObject savePhotoResponse) {
-        if (savePhotoResponse == null) {
-            return;
-        }
-
-        String attachment = "photo" + savePhotoResponse.getInt("owner_id") + "_" + savePhotoResponse.getInt("id") + "_"
-                + savePhotoResponse.getString("access_key");
-        HttpUrl url = getBaseUrlBuilder("messages.send")
-                .addQueryParameter(id < 200000000 ? "user_id" : "peer_id", String.valueOf(id))
-                .addQueryParameter("message", message)
-                .addQueryParameter("attachment", attachment)
-                .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()))
-                .build();
-        Request request = new Request.Builder().url(url).build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                LOGGER.error("Error sending message with photo: {}", e.getMessage(), e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Error sending message with photo: {}", response.code());
-                }
-                response.close();
-            }
-        });
-    }
-
-    /**
-     *Sends a response to a message in a private message to a user or to a conversation.
-     *
-     * @param  id
-     *         The ID of the user or conversation to which you want to post a reply.
-     * @param  messageId
-     *         The ID of the message you want to reply to.
-     * @param  message
-     *         The text you want to reply with.
-     */
-    public void reply(int id, String messageId, String message) {
-        HttpUrl url = getBaseUrlBuilder("messages.send")
-                .addQueryParameter(id < 200000000 ? "user_id" : "peer_id", String.valueOf(id))
-                .addQueryParameter("reply_to", messageId)
-                .addQueryParameter("message", message)
-                .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()))
-                .build();
-        Request request = new Request.Builder().url(url).build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                LOGGER.error("Error sending response: {}", e.getMessage(), e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (!response.isSuccessful()) {
-                    LOGGER.error("Error sending response: {}", response.code());
-                }
-                response.close();
-            }
-        });
+        return new PostAction(client, builder);
     }
 
     /**
@@ -509,22 +309,11 @@ public class JVA {
      *
      * @return The Conversation with this ID. May return null.
      */
-    public RestAction<Conversation> getConversationById(String conversationId) {
-        HttpUrl url = getBaseUrlBuilder("messages.getConversationsById")
-                .addQueryParameter("peer_ids", String.valueOf(conversationId))
-                .build();
-        Request request = new Request.Builder().url(url).build();
+    public GetConversationByIdAction getConversationById(String conversationId) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("messages.getConversationsById")
+                .addQueryParameter("peer_ids", String.valueOf(conversationId));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? Conversation.fromJSON(json.getJSONObject("response")
-                            .getJSONArray("items").getJSONObject(0)) : null;
-                }
-                return null;
-            }
-        });
+        return new GetConversationByIdAction(client, builder);
     }
 
     /**
@@ -535,20 +324,10 @@ public class JVA {
      *
      * @return The User with this ID. May return null.
      */
-    public RestAction<User> getUserById(String userId) {
-        HttpUrl url = getBaseUrlBuilder("users.get")
-                .addQueryParameter("user_ids", String.valueOf(userId))
-                .build();
-        Request request = new Request.Builder().url(url).build();
+    public GetUserByIdAction getUserById(String userId) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("users.get")
+                .addQueryParameter("user_ids", String.valueOf(userId));
 
-        return new RestAction<>(client.newCall(request), response -> {
-            try (response) {
-                if (response.isSuccessful()) {
-                    JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? User.fromJSON(json.getJSONArray("response").getJSONObject(0)) : null;
-                }
-                return null;
-            }
-        });
+        return new GetUserByIdAction(client, builder);
     }
 }

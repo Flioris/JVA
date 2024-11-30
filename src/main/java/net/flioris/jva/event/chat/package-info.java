@@ -1,4 +1,4 @@
 /**
- * Contains models of chat events.
+ * Contains chat events.
  */
 package net.flioris.jva.event.chat;

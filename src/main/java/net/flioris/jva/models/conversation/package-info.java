@@ -1,4 +1,4 @@
 /**
- * Contains models associated with conversations.
+ * Contains objects related to conversations.
  */
 package net.flioris.jva.models.conversation;

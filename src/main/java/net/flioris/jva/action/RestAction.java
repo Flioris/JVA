@@ -1,25 +1,27 @@
-package net.flioris.jva.util;
+package net.flioris.jva.action;
 
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class RestAction<T> {
-    private final Call call;
+public abstract class RestAction<T> {
     private final ResponseHandler<T> responseHandler;
 
-    public RestAction(Call call, ResponseHandler<T> responseHandler) {
-        this.call = call;
+    public RestAction(ResponseHandler<T> responseHandler) {
         this.responseHandler = responseHandler;
     }
+
+    protected abstract Call getCall();
 
     /**
      * Executes the request synchronously.
      */
     public T complete() {
-        try (Response response = call.execute()) {
+        try (Response response = getCall().execute()) {
             if (response.isSuccessful()) {
                 return responseHandler.handleResponse(response);
             } else {
@@ -34,7 +36,7 @@ public class RestAction<T> {
      * Executes the request asynchronously.
      */
     public void queue(Consumer<T> onSuccess, Consumer<Throwable> onFailure) {
-        call.enqueue(new Callback() {
+        getCall().enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 onFailure.accept(e);
@@ -56,7 +58,7 @@ public class RestAction<T> {
      * Executes the request asynchronously.
      */
     public void queue(Consumer<T> onSuccess) {
-        call.enqueue(new Callback() {
+        getCall().enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {}
 
@@ -74,7 +76,7 @@ public class RestAction<T> {
      * Executes the request asynchronously.
      */
     public void queue() {
-        call.enqueue(new Callback() {
+        getCall().enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {}
 
