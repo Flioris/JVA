@@ -4,7 +4,9 @@ import net.flioris.jva.action.document.GetDocumentUploadServerAction;
 import net.flioris.jva.action.document.SaveDocumentAction;
 import net.flioris.jva.action.document.UploadDocumentAction;
 import net.flioris.jva.action.message.GetConversationByIdAction;
-import net.flioris.jva.action.message.SendAction;
+import net.flioris.jva.action.message.GetConversationsByIdAction;
+import net.flioris.jva.action.message.SendMessageAction;
+import net.flioris.jva.action.message.SendMessagesAction;
 import net.flioris.jva.action.photo.GetPhotoUploadServerAction;
 import net.flioris.jva.action.photo.SavePhotoAction;
 import net.flioris.jva.action.photo.UploadPhotoAction;
@@ -22,9 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Provides methods to execute API requests and handles events.
@@ -281,12 +285,42 @@ public class JVA {
      *
      * @return The ID of the message that was sent.
      */
-    public SendAction send(int targetId) {
+    public SendMessageAction send(int targetId) {
         HttpUrl.Builder builder = getBaseUrlBuilder("messages.send")
-                .addQueryParameter(targetId < 200000000 ? "user_id" : "peer_id", String.valueOf(targetId))
+                .addQueryParameter(targetId < 2000000000 ? "user_id" : "peer_id", String.valueOf(targetId))
                 .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()));
 
-        return new SendAction(client, builder);
+        return new SendMessageAction(client, builder);
+    }
+
+    /**
+     * Sends a messages to users OR conversations. Do not include both users and conversations. If the bot is unable to send any message, no messages will be sent and an empty list will be returned to you.
+     *
+     * @param  targetIds
+     *         User IDs OR Conversations IDs where you want to send the message.
+     *
+     * @return А list of message IDs.
+     */
+    public SendMessagesAction send(int... targetIds) {
+        String userIds = Arrays.stream(targetIds)
+                .filter(id -> id < 2000000000)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(","));
+        String peerIds = Arrays.stream(targetIds)
+                .filter(id -> id > 2000000000)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        HttpUrl.Builder builder = getBaseUrlBuilder("messages.send")
+                .addQueryParameter("random_id", String.valueOf(System.currentTimeMillis()));
+
+        if (!peerIds.isEmpty()) {
+            builder.addQueryParameter("peer_ids", peerIds);
+        } else if (!userIds.isEmpty()) {
+            builder.addQueryParameter("user_ids", userIds);
+        }
+
+        return new SendMessagesAction(client, builder);
     }
 
     /**
@@ -305,7 +339,7 @@ public class JVA {
      * Returns the Conversation by its ID.
      *
      * @param  conversationId
-     *         The ID of the Conversation you want to receive.
+     *         The ID of the Conversation you want to receive. To get group chats use -1, -2 etc.
      *
      * @return The Conversation with this ID. May return null.
      */
@@ -314,6 +348,21 @@ public class JVA {
                 .addQueryParameter("peer_ids", String.valueOf(conversationId));
 
         return new GetConversationByIdAction(client, builder);
+    }
+
+    /**
+     * Returns a List of Conversation by their ID. May return an empty list if at least 1 conversation is not found.
+     *
+     * @param  conversationIds
+     *         IDs of the Conversations you want to receive. To get group chats use -1, -2 etc.
+     *
+     * @return A List of Conversation.
+     */
+    public GetConversationsByIdAction getConversationsById(String... conversationIds) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("messages.getConversationsById")
+                .addQueryParameter("peer_ids", String.join(",", conversationIds));
+
+        return new GetConversationsByIdAction(client, builder);
     }
 
     /**

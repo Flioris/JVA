@@ -10,7 +10,7 @@ public class PostAction extends RestAction<Integer> {
     private final OkHttpClient client;
     private final okhttp3.HttpUrl.Builder urlBuilder;
 
-    public PostAction( OkHttpClient client, okhttp3.HttpUrl.Builder urlBuilder) {
+    public PostAction(OkHttpClient client, okhttp3.HttpUrl.Builder urlBuilder) {
         super(response -> {
             try (response) {
                 if (response.isSuccessful()) {
@@ -23,6 +23,78 @@ public class PostAction extends RestAction<Integer> {
 
         this.client = client;
         this.urlBuilder = urlBuilder;
+    }
+
+    public PostAction setSigned(boolean signed) {
+        urlBuilder.setQueryParameter("signed", signed ? "1" : "0");
+
+        return this;
+    }
+
+    public PostAction setPublishDate(long timestamp) {
+        urlBuilder.setQueryParameter("publish_date", String.valueOf(timestamp));
+
+        return this;
+    }
+
+    public PostAction setLat(int lat) {
+        urlBuilder.setQueryParameter("lat", String.valueOf(lat));
+
+        return this;
+    }
+
+    public PostAction setLong(int longValue) {
+        urlBuilder.setQueryParameter("long", String.valueOf(longValue));
+
+        return this;
+    }
+
+    public PostAction setPlaceId(int placeId) {
+        urlBuilder.setQueryParameter("place_id", String.valueOf(placeId));
+
+        return this;
+    }
+
+    public PostAction setPostId(int postId) {
+        urlBuilder.setQueryParameter("post_id", String.valueOf(postId));
+
+        return this;
+    }
+
+    public PostAction setGuid(String id) {
+        urlBuilder.setQueryParameter("guid", String.valueOf(id));
+
+        return this;
+    }
+
+    public PostAction setMarkAsAds(boolean markAsAds) {
+        urlBuilder.setQueryParameter("mark_as_ads", markAsAds ? "1" : "0");
+
+        return this;
+    }
+
+    public PostAction setCloseComments(boolean closeComments) {
+        urlBuilder.setQueryParameter("close_comments", closeComments ? "1" : "0");
+
+        return this;
+    }
+
+    public PostAction setDonutPaidDuration(int time) {
+        urlBuilder.setQueryParameter("donut_paid_duration", String.valueOf(time));
+
+        return this;
+    }
+
+    public PostAction setMuteNotifications(boolean muteNotifications) {
+        urlBuilder.setQueryParameter("mute_notifications", muteNotifications ? "1" : "0");
+
+        return this;
+    }
+
+    public PostAction setCopyright(String copyright) {
+        urlBuilder.setQueryParameter("copyright", copyright);
+
+        return this;
     }
 
     public PostAction setPhoto(JSONObject saveDocResponse) {
