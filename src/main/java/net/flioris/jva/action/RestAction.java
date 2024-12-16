@@ -81,7 +81,9 @@ public abstract class RestAction<T> {
             public void onFailure(Call call, IOException e) {}
 
             @Override
-            public void onResponse(Call call, Response response) {}
+            public void onResponse(Call call, Response response) {
+                response.close();
+            }
         });
     }
 
