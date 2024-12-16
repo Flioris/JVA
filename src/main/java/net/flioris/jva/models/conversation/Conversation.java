@@ -29,6 +29,7 @@ public class Conversation {
     @Nullable
     private final Boolean unanswered;
     private final CanWrite canWrite;
+    @Nullable
     private final ChatSettings chatSettings;
     @Nullable
     private final SortId sortId;
@@ -51,7 +52,7 @@ public class Conversation {
                 rawConversation.has("important") ? rawConversation.getBoolean("important") : null,
                 rawConversation.has("unanswered") ? rawConversation.getBoolean("unanswered") : null,
                 CanWrite.fromJSON(rawConversation.getJSONObject("can_write")),
-                ChatSettings.fromJSON(rawConversation.getJSONObject("chat_settings")),
+                rawConversation.has("chat_settings") ? ChatSettings.fromJSON(rawConversation.getJSONObject("chat_settings")) : null,
                 rawConversation.has("sort_id") ? SortId.fromJSON(rawConversation.getJSONObject("sort_id")) : null,
                 rawConversation.has("last_message_id") ? rawConversation.getInt("last_message_id") : null,
                 rawConversation.has("last_conversation_message_id") ? rawConversation.getInt("last_conversation_message_id") : null,
