@@ -132,9 +132,9 @@ public class JVA {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
                     JSONObject jsonResponse = new JSONObject(responseBody);
-                    String newTs;
+                    int newTs;
                     if (jsonResponse.has("ts")) {
-                        newTs = jsonResponse.getString("ts");
+                        newTs = jsonResponse.getInt("ts");
                         JSONArray updates = jsonResponse.getJSONArray("updates");
                         for (int i = 0; i < updates.length(); i++) {
                             onUpdateReceived(updates.getJSONObject(i));
