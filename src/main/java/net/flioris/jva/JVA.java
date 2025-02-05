@@ -116,7 +116,7 @@ public class JVA {
                 .addPathSegments("whp/" + GROUP_ID)
                 .addQueryParameter("act", "a_check")
                 .addQueryParameter("key", longPollServer.getString("key"))
-                .addQueryParameter("ts", longPollServer.getString("ts"))
+                .addQueryParameter("ts", String.valueOf(longPollServer.getInt("ts")))
                 .addQueryParameter("wait", "25")
                 .build();
         Request request = new Request.Builder().url(longPollUrl).build();
@@ -135,9 +135,11 @@ public class JVA {
                     int newTs;
                     if (jsonResponse.has("ts")) {
                         newTs = jsonResponse.getInt("ts");
-                        JSONArray updates = jsonResponse.getJSONArray("updates");
-                        for (int i = 0; i < updates.length(); i++) {
-                            onUpdateReceived(updates.getJSONObject(i));
+                        if (jsonResponse.has("updates")) {
+                            JSONArray updates = jsonResponse.getJSONArray("updates");
+                            for (int i = 0; i < updates.length(); i++) {
+                                onUpdateReceived(updates.getJSONObject(i));
+                            }
                         }
                         longPollServer.put("ts", newTs);
                         connectToLongPollServer(longPollServer);
@@ -152,6 +154,7 @@ public class JVA {
     }
 
     private void reconnectWithDelay() {
+        LOGGER.warn("Failed to connect. I'll try to reconnect in " + RECONNECT_DELAY_SECONDS +" seconds.");
         scheduler.schedule(() -> {
             JSONObject longPollServer = getLongPollServer();
             connectToLongPollServer(longPollServer);
