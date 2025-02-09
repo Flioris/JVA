@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Flioris:JVA:0.1.8-alpha")
+    implementation("com.github.Flioris:JVA:0.1.10-alpha")
 }
 ```
 
