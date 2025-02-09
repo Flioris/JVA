@@ -24,7 +24,7 @@ An open source Java wrapper for working with the VK Long Poll API. Provides the 
     <dependency>
         <groupId>com.github.Flioris</groupId>
         <artifactId>JVA</artifactId>
-        <version>0.1.8-alpha</version>
+        <version>0.1.10-alpha</version>
     </dependency>
 </dependencies>
 ```
