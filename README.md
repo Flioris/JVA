@@ -4,7 +4,7 @@
 [![discord-shield](https://discord.com/api/guilds/1045660297236582462/widget.png)](https://discord.gg/AZSZ8nhtra)
 [![docs-shield](https://img.shields.io/badge/Wiki-Docs-blue.svg)](https://flioris.github.io/JVA/)
 
-# JVA (Java VK API)
+# Java VK API (abandoned)
 
 An open source Java wrapper for working with the VK Long Poll API. Provides the ability to work with VK methods and its events for group bots.
 
