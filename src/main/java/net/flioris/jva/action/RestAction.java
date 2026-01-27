@@ -3,6 +3,7 @@ package net.flioris.jva.action;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +44,12 @@ public abstract class RestAction<T> {
     public void queue(Consumer<T> onSuccess, Consumer<Throwable> onFailure) {
         getCall().enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 onFailure.accept(e);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     T result = responseHandler.handleResponse(response);
                     onSuccess.accept(result);
@@ -66,12 +67,12 @@ public abstract class RestAction<T> {
     public void queue(Consumer<T> onSuccess) {
         getCall().enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 LOGGER.error(e.getMessage());
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     T result = responseHandler.handleResponse(response);
                     onSuccess.accept(result);
@@ -89,12 +90,12 @@ public abstract class RestAction<T> {
     public void queue() {
         getCall().enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 LOGGER.error(e.getMessage());
             }
 
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
                     LOGGER.error("Request execution error: {}", response.code());
                 }

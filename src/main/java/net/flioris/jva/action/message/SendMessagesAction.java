@@ -2,6 +2,7 @@ package net.flioris.jva.action.message;
 
 import net.flioris.jva.action.RestAction;
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.json.JSONArray;
@@ -12,9 +13,9 @@ import java.util.List;
 
 public class SendMessagesAction extends RestAction<List<Integer>> {
     private final OkHttpClient client;
-    private final okhttp3.HttpUrl.Builder urlBuilder;
+    private final HttpUrl.Builder urlBuilder;
 
-    public SendMessagesAction(OkHttpClient client, okhttp3.HttpUrl.Builder urlBuilder) {
+    public SendMessagesAction(OkHttpClient client, HttpUrl.Builder urlBuilder) {
         super(response -> {
             try (response) {
                 if (response.isSuccessful()) {

@@ -2,20 +2,25 @@ package net.flioris.jva.action.message;
 
 import net.flioris.jva.action.RestAction;
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SendMessageAction extends RestAction<Integer> {
     private final OkHttpClient client;
-    private final okhttp3.HttpUrl.Builder urlBuilder;
+    private final HttpUrl.Builder urlBuilder;
 
-    public SendMessageAction(OkHttpClient client, okhttp3.HttpUrl.Builder urlBuilder) {
+    public SendMessageAction(OkHttpClient client, HttpUrl.Builder urlBuilder) {
         super(response -> {
             try (response) {
                 if (response.isSuccessful()) {
                     JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getInt("response") : null;
+                    Object resp = json.opt("response");
+                    if (resp instanceof Number) {
+                        return ((Number) resp).intValue();
+                    }
                 }
                 return null;
             }
@@ -26,8 +31,37 @@ public class SendMessageAction extends RestAction<Integer> {
     }
 
     public SendMessageAction setPhoto(JSONObject savePhotoResponse) {
-        urlBuilder.addQueryParameter("attachment", "photo" + savePhotoResponse.getInt("owner_id") +
-                "_" + savePhotoResponse.getInt("id") + "_" + savePhotoResponse.getString("access_key"));
+        JSONObject photo = savePhotoResponse;
+
+        if (savePhotoResponse.has("response")) {
+            Object resp = savePhotoResponse.get("response");
+            if (resp instanceof JSONArray) {
+                JSONArray arr = savePhotoResponse.getJSONArray("response");
+                if (!arr.isEmpty()) {
+                    photo = arr.getJSONObject(0);
+                } else {
+                    throw new IllegalArgumentException("savePhotoResponse.response is empty");
+                }
+            } else if (resp instanceof JSONObject) {
+                photo = savePhotoResponse.getJSONObject("response");
+            }
+        }
+
+        if (!photo.has("owner_id") || !photo.has("id")) {
+            throw new IllegalArgumentException("photo object must contain owner_id and id fields: " + photo);
+        }
+
+        int ownerId = photo.getInt("owner_id");
+        int id = photo.getInt("id");
+        String accessKey = photo.optString("access_key", null);
+        StringBuilder attachment = new StringBuilder();
+
+        attachment.append("photo").append(ownerId).append("_").append(id);
+        if (accessKey != null && !accessKey.isEmpty()) {
+            attachment.append("_").append(accessKey);
+        }
+
+        urlBuilder.addQueryParameter("attachment", attachment.toString());
 
         return this;
     }

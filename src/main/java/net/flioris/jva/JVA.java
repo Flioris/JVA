@@ -17,6 +17,7 @@ import net.flioris.jva.event.chat.MessageEvent;
 import net.flioris.jva.models.Message;
 import net.flioris.jva.event.EventListener;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -123,12 +124,12 @@ public class JVA {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 LOGGER.error("Error connecting to Long Poll server: {}", e.getMessage());
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
                     JSONObject jsonResponse = new JSONObject(responseBody);
@@ -167,7 +168,7 @@ public class JVA {
             String text = message.getText();
 
             if (text.startsWith("/")) {
-                String[] command = text.substring(1, text.length()).split(" ");
+                String[] command = text.substring(1).split(" ");
                 CommandEvent event = new CommandEvent(message, command[0], command, update);
                 for (EventListener listener : botListener) {
                     listener.onCommand(event);
@@ -191,7 +192,7 @@ public class JVA {
      * @return Photos upload server.
      */
     public GetPhotoUploadServerAction getPhotoUploadServer(int peerId) {
-        okhttp3.HttpUrl.Builder builder = getBaseUrlBuilder("photos.getMessagesUploadServer")
+        HttpUrl.Builder builder = getBaseUrlBuilder("photos.getMessagesUploadServer")
                 .addQueryParameter("peer_id", String.valueOf(peerId));
 
         return new GetPhotoUploadServerAction(client, builder);
@@ -203,7 +204,7 @@ public class JVA {
      * @return Documents upload server.
      */
     public GetDocumentUploadServerAction getDocumentUploadServer() {
-        okhttp3.HttpUrl.Builder builder = getBaseUrlBuilder("docs.getWallUploadServer")
+        HttpUrl.Builder builder = getBaseUrlBuilder("docs.getWallUploadServer")
                 .addQueryParameter("group_id", GROUP_ID);
 
         return new GetDocumentUploadServerAction(client, builder);
@@ -220,7 +221,7 @@ public class JVA {
      * @return uploadPhotoResponse.
      */
     public UploadPhotoAction uploadPhoto(String uploadUrl, File photo) {
-        okhttp3.MultipartBody.Builder builder = new MultipartBody.Builder()
+        MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("photo", photo.getName(),
                         RequestBody.create(photo, MediaType.parse("image/png")));
@@ -239,7 +240,7 @@ public class JVA {
      * @return uploadDocumentResponse.
      */
     public UploadDocumentAction uploadDocument(String uploadUrl, File photo) {
-        okhttp3.MultipartBody.Builder builder = new MultipartBody.Builder()
+        MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", photo.getName(),
                         RequestBody.create(photo, MediaType.parse("image/png")));

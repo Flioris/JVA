@@ -2,15 +2,16 @@ package net.flioris.jva.action.photo;
 
 import net.flioris.jva.action.RestAction;
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.json.JSONObject;
 
 public class GetPhotoUploadServerAction extends RestAction<String> {
     private final OkHttpClient client;
-    private final okhttp3.HttpUrl.Builder urlBuilder;
+    private final HttpUrl.Builder urlBuilder;
 
-    public GetPhotoUploadServerAction(OkHttpClient client, okhttp3.HttpUrl.Builder urlBuilder) {
+    public GetPhotoUploadServerAction(OkHttpClient client, HttpUrl.Builder urlBuilder) {
         super(response -> {
             try (response) {
                 if (response.isSuccessful()) {
