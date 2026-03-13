@@ -16,7 +16,12 @@ public class GetUserPhotoAction extends RestAction<String> {
             try (response) {
                 if (response.isSuccessful()) {
                     JSONObject json = new JSONObject(response.body().string());
-                    return json.has("response") ? json.getJSONArray("response").getJSONObject(0).getString("photo_400_orig") : null;
+                    if (json.has("response")) {
+                        JSONObject object = json.getJSONArray("response").getJSONObject(0);
+                        if (object.has("photo_200")) {
+                            return object.getString("photo_200");
+                        }
+                    }
                 }
                 return null;
             }

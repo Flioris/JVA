@@ -396,7 +396,7 @@ public class JVA {
     public GetUserPhotoAction getUserPhoto(String userId) {
         HttpUrl.Builder builder = getBaseUrlBuilder("users.get")
                 .addQueryParameter("user_ids", String.valueOf(userId))
-                .addQueryParameter("fields", "photo_400_orig");
+                .addQueryParameter("fields", "photo_200");
         return new GetUserPhotoAction(client, builder);
     }
 }
