@@ -11,6 +11,7 @@ import net.flioris.jva.action.photo.GetPhotoUploadServerAction;
 import net.flioris.jva.action.photo.SavePhotoAction;
 import net.flioris.jva.action.photo.UploadPhotoAction;
 import net.flioris.jva.action.user.GetUserByIdAction;
+import net.flioris.jva.action.user.GetUserPhotoAction;
 import net.flioris.jva.action.wall.PostAction;
 import net.flioris.jva.event.chat.CommandEvent;
 import net.flioris.jva.event.chat.MessageEvent;
@@ -382,5 +383,20 @@ public class JVA {
                 .addQueryParameter("user_ids", String.valueOf(userId));
 
         return new GetUserByIdAction(client, builder);
+    }
+
+    /**
+     * Returns the Photo by its User ID.
+     *
+     * @param  userId
+     *         The ID of the User.
+     *
+     * @return The Photo with this User ID. May return null.
+     */
+    public GetUserPhotoAction getUserPhoto(String userId) {
+        HttpUrl.Builder builder = getBaseUrlBuilder("users.get")
+                .addQueryParameter("user_ids", String.valueOf(userId))
+                .addQueryParameter("fields", "photo_400_orig");
+        return new GetUserPhotoAction(client, builder);
     }
 }
